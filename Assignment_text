@@ -157,3 +157,5 @@ replicaset.apps/redis-868d64d78     1         1         1       18m
 replicaset.apps/result-5d57b59f4b   1         1         1       18m
 replicaset.apps/vote-94849dc97      1         1         1       18m
 replicaset.apps/worker-dd46d7584    1         1         1       18m
+
+If the result pod goes to error/pending state after DB pod creation, we just need to restart/delete the result pod to make it work.
