@@ -1,0 +1,155 @@
+Initial pod creation:
+[root@ip-172-31-34-183 ~]# cd example-voting-app/k8s-specifications/
+[root@ip-172-31-34-183 k8s-specifications]# kubectl apply -f .
+deployment.apps/db created
+service/db created
+deployment.apps/redis created
+service/redis created
+deployment.apps/result created
+service/result created
+deployment.apps/vote created
+service/vote created
+deployment.apps/worker created
+[root@ip-172-31-34-183 k8s-specifications]#  kubectl get all
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/db-b54cd94f4-vbq2z        1/1     Running   0          29s
+pod/redis-868d64d78-pc45x     1/1     Running   0          29s
+pod/result-5d57b59f4b-djnqx   1/1     Running   0          29s
+pod/vote-94849dc97-5xx6c      1/1     Running   0          29s
+pod/worker-dd46d7584-gfk49    1/1     Running   0          28s
+
+NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/db       ClusterIP   10.102.213.221   <none>        5432/TCP         29s
+service/redis    ClusterIP   10.105.79.77     <none>        6379/TCP         29s
+service/result   NodePort    10.98.0.110      <none>        5001:31003/TCP   29s
+service/vote     NodePort    10.99.196.11     <none>        5000:31002/TCP   29s
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/db       1/1     1            1           29s
+deployment.apps/redis    1/1     1            1           29s
+deployment.apps/result   1/1     1            1           29s
+deployment.apps/vote     1/1     1            1           29s
+deployment.apps/worker   1/1     1            1           28s
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/db-b54cd94f4        1         1         1       29s
+replicaset.apps/redis-868d64d78     1         1         1       29s
+replicaset.apps/result-5d57b59f4b   1         1         1       29s
+replicaset.apps/vote-94849dc97      1         1         1       29s
+replicaset.apps/worker-dd46d7584    1         1         1       28s
+[root@ip-172-31-34-183 k8s-specifications]#
+
+
+
+After Voting pod deletion:
+Voting pod deletion doesn't affect the result page as it takes data from the db pod to display.
+Before the pod deletion the front end voting page was displayed for pod vote-94849dc97-5xx6c. But after the pod 
+deletion its displayed for the newly created pod vote-94849dc97-9d8zw as shown in the snapshot.
+
+[root@ip-172-31-34-183 k8s-specifications]# kubectl delete pod vote-94849dc97-5xx6c
+pod "vote-94849dc97-5xx6c" deleted
+
+
+Every 2.0s:  kubectl get all                                                                                                     Fri Aug 18 03:58:38 2023
+
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/db-b54cd94f4-vbq2z        1/1     Running   0          7m13s
+pod/redis-868d64d78-pc45x     1/1     Running   0          7m13s
+pod/result-5d57b59f4b-djnqx   1/1     Running   0          7m13s
+pod/vote-94849dc97-9d8zw      1/1     Running   0          117s
+pod/worker-dd46d7584-gfk49    1/1     Running   0          7m12s
+
+NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/db       ClusterIP   10.102.213.221   <none>        5432/TCP         7m13s
+service/redis    ClusterIP   10.105.79.77     <none>        6379/TCP         7m13s
+service/result   NodePort    10.98.0.110      <none>        5001:31003/TCP   7m13s
+service/vote     NodePort    10.99.196.11     <none>        5000:31002/TCP   7m13s
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/db       1/1     1            1           7m13s
+deployment.apps/redis    1/1     1            1           7m13s
+deployment.apps/result   1/1     1            1           7m13s
+deployment.apps/vote     1/1     1            1           7m13s
+deployment.apps/worker   1/1     1            1           7m12s
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/db-b54cd94f4        1         1         1       7m13s
+replicaset.apps/redis-868d64d78     1         1         1       7m13s
+replicaset.apps/result-5d57b59f4b   1         1         1       7m13s
+replicaset.apps/vote-94849dc97      1         1         1       7m13s
+replicaset.apps/worker-dd46d7584    1         1         1       7m12s
+
+AFter Worker pod deletion:
+After work pod deletion, new new worker pod is created in the name worker-dd46d7584-pmgbj.
+But didn't observe any impact on voting or result app.
+
+[root@ip-172-31-34-183 k8s-specifications]# kubectl delete pod worker-dd46d7584-gfk49
+pod "worker-dd46d7584-gfk49" deleted
+[root@ip-172-31-34-183 k8s-specifications]#
+Every 2.0s:  kubectl get all                                                                                                     Fri Aug 18 04:05:51 2023
+
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/db-b54cd94f4-vbq2z        1/1     Running   0          14m
+pod/redis-868d64d78-pc45x     1/1     Running   0          14m
+pod/result-5d57b59f4b-djnqx   1/1     Running   0          14m
+pod/vote-94849dc97-9d8zw      1/1     Running   0          9m10s
+pod/worker-dd46d7584-pmgbj    1/1     Running   0          76s
+
+NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/db       ClusterIP   10.102.213.221   <none>        5432/TCP         14m
+service/redis    ClusterIP   10.105.79.77     <none>        6379/TCP         14m
+service/result   NodePort    10.98.0.110      <none>        5001:31003/TCP   14m
+service/vote     NodePort    10.99.196.11     <none>        5000:31002/TCP   14m
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/db       1/1     1            1           14m
+deployment.apps/redis    1/1     1            1           14m
+deployment.apps/result   1/1     1            1           14m
+deployment.apps/vote     1/1     1            1           14m
+deployment.apps/worker   1/1     1            1           14m
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/db-b54cd94f4        1         1         1       14m
+replicaset.apps/redis-868d64d78     1         1         1       14m
+replicaset.apps/result-5d57b59f4b   1         1         1       14m
+replicaset.apps/vote-94849dc97      1         1         1       14m
+replicaset.apps/worker-dd46d7584    1         1         1       14m
+
+DB pod creation:
+After killing the pods in order, Observed once the pod is terminated a new pod is created for all three.
+But for no pod restart count is one. When DB pod is deleted, RESULT and WORKER pod restart count becomes as 1 because these pods
+are connected/dependent on DB , as DB is restarted so are these pods to be in sync.
+All the data is deleted and worker and result pod got restarted as these two pods are connected to db pod
+Once the db pod comes up, voting app works properly but old database entry is gone.
+
+[root@ip-172-31-34-183 k8s-specifications]# kubectl delete pod db-b54cd94f4-vbq2z
+pod "db-b54cd94f4-vbq2z" deleted
+
+Every 2.0s:  kubectl get all                                                                                                     Fri Aug 18 04:09:52 2023
+
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/db-b54cd94f4-8v7j4        1/1     Running   0          73s
+pod/redis-868d64d78-pc45x     1/1     Running   0          18m
+pod/result-5d57b59f4b-djnqx   1/1     Running   1          18m
+pod/vote-94849dc97-9d8zw      1/1     Running   0          13m
+pod/worker-dd46d7584-pmgbj    1/1     Running   1          5m17s
+
+NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/db       ClusterIP   10.102.213.221   <none>        5432/TCP         18m
+service/redis    ClusterIP   10.105.79.77     <none>        6379/TCP         18m
+service/result   NodePort    10.98.0.110      <none>        5001:31003/TCP   18m
+service/vote     NodePort    10.99.196.11     <none>        5000:31002/TCP   18m
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/db       1/1     1            1           18m
+deployment.apps/redis    1/1     1            1           18m
+deployment.apps/result   1/1     1            1           18m
+deployment.apps/vote     1/1     1            1           18m
+deployment.apps/worker   1/1     1            1           18m
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/db-b54cd94f4        1         1         1       18m
+replicaset.apps/redis-868d64d78     1         1         1       18m
+replicaset.apps/result-5d57b59f4b   1         1         1       18m
+replicaset.apps/vote-94849dc97      1         1         1       18m
+replicaset.apps/worker-dd46d7584    1         1         1       18m
